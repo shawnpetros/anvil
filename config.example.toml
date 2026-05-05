@@ -1,0 +1,34 @@
+# anvil config example. Copy to ~/.config/anvil/config.toml and edit.
+# The Linear API key MUST live in an env var, not in this file. anvil refuses
+# to load if it sees `lin_api_...` or `lin_oauth_...` here.
+
+[tracker]
+kind = "linear"
+# Optional. Limits issues by Linear project slug-id. Omit to consider every
+# project on the configured teams.
+# project_slug = "symphony-0c79b11b75ea"
+teams = ["Personal"]
+# NAME of the env var holding your Linear personal token. Set the env var
+# before running `anvil run` (e.g. `export LINEAR_TOKEN=lin_api_...`).
+api_key_env = "LINEAR_TOKEN"
+
+[review]
+# The new state anvil polls for. Add this state to your Linear team's
+# workflow before running anvil.
+state_name = "Adversarial Review"
+# Where to send the issue on a clean review.
+pass_state = "Human Review"
+# Where to send the issue when the reviewer flags a blocker.
+fail_state = "Rework"
+poll_interval_seconds = 30
+# Path to the persona markdown file. Relative to anvil's working directory or absolute.
+persona_path = "templates/reviewer.md"
+# Default agent CLI when the persona doesn't override.
+agent_command = "claude"
+# Hard cap on a single reviewer subprocess.
+subprocess_timeout_seconds = 600
+
+[workspace]
+# Symphony's per-issue workspace root. anvil reads diffs out of these
+# directories; it does not create or mutate them.
+root = "~/code/symphony-workspaces"

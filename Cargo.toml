@@ -1,0 +1,26 @@
+[package]
+name = "anvil"
+version = "0.1.0"
+edition = "2021"
+authors = ["Shawn Petros"]
+description = "Adversarial pre-PR reviewer that bolts onto OpenAI Symphony's WORKFLOW.md state machine"
+
+[dependencies]
+anyhow = "1.0"
+clap = { version = "4", features = ["derive"] }
+reqwest = { version = "0.12", features = ["json", "rustls-tls"], default-features = false }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+serde_yaml = "0.9"
+tokio = { version = "1", features = ["full"] }
+toml = "0.8"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+
+[profile.release]
+opt-level = 3
+lto = "thin"
+
+[[bin]]
+name = "anvil"
+path = "src/main.rs"
