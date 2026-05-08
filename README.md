@@ -89,6 +89,12 @@ loop {
 
 State transitions and comments are anvil's responsibility. The reviewer subprocess does not write to Linear. The Linear API token lives only in the env var named by `tracker.api_key_env`; the config file refuses to store a real one.
 
+## Want the all-in-one?
+
+If you'd rather not maintain Symphony plus Anvil as two separate processes, there's [Smithy](https://github.com/shawnpetros/smithy). A fork of Symphony with Anvil's adversarial-review state baked in, plus dual agent runtimes (Codex + Claude Code), Linear OAuth identity, label-gated autonomous merge, model-summarized run logs, and a max-retry circuit breaker. One process, all the opinions.
+
+Anvil stays as the option for users who want vanilla Symphony plus adversarial review without forking.
+
 ## License
 
 MIT.
