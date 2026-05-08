@@ -239,9 +239,14 @@ async fn review_one(
                 .await
                 .context("transition to pass state")?;
             client
-                .add_comment(&issue.id, &pass_comment_body(&r))
+                .append_to_workpad_or_create(
+                    &issue.id,
+                    "Adversarial Review",
+                    "PASS",
+                    &pass_comment_body(&r),
+                )
                 .await
-                .context("post pass comment")?;
+                .context("append pass verdict to workpad")?;
             tracing::info!(issue = %issue.identifier, "reviewer PASS - moved to pass state");
         }
         Some(r) => {
@@ -250,13 +255,19 @@ async fn review_one(
                 .await
                 .context("transition to fail state")?;
             client
-                .add_comment(&issue.id, &fail_comment_body(&r))
+                .append_to_workpad_or_create(
+                    &issue.id,
+                    "Adversarial Review",
+                    "FAIL",
+                    &fail_comment_body(&r),
+                )
                 .await
-                .context("post fail comment")?;
+                .context("append fail verdict to workpad")?;
             tracing::warn!(issue = %issue.identifier, "reviewer FAIL - moved to fail state");
         }
         None => {
-            // surface-don't-cancel: leave state alone, log a comment, move on.
+            // surface-don't-cancel: leave state alone, append a note to the
+            // workpad (or post standalone if missing), move on.
             let reason = output
                 .parse_error
                 .unwrap_or_else(|| "reviewer produced no REVIEW.md".to_string());
@@ -266,11 +277,13 @@ async fn review_one(
                 reason = %reason,
                 "reviewer produced no usable REVIEW.md - leaving state for operator"
             );
-            let body = format!(
-                "**anvil**: reviewer produced no usable `REVIEW.md`. Leaving state at `{}` for the operator to inspect.\n\n```\n{}\n```",
+            let note = format!(
+                "Reviewer produced no usable `REVIEW.md`. Leaving state at `{}` for the operator to inspect.\n\n```\n{}\n```",
                 cfg.review.state_name, reason
             );
-            let _ = client.add_comment(&issue.id, &body).await;
+            let _ = client
+                .append_to_workpad_or_create(&issue.id, "Adversarial Review", "BLOCKED", &note)
+                .await;
         }
     }
     Ok(())

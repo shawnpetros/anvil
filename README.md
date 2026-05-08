@@ -1,6 +1,6 @@
 # anvil
 
-Adversarial pre-PR reviewer that bolts onto OpenAI Symphony's `WORKFLOW.md` state machine. Anvil inserts one new Linear state, `Adversarial Review`, between Symphony's `In Progress` and `Human Review`. Symphony's builder finishes, transitions the issue to `Adversarial Review`, anvil polls, runs a cross-model audit on the diff, and either moves the issue forward to `Human Review` (pass) or back to `Rework` with findings posted as a comment (fail).
+Adversarial pre-PR reviewer that bolts onto OpenAI Symphony's `WORKFLOW.md` state machine. Anvil inserts one new Linear state, `Adversarial Review`, between Symphony's `In Progress` and `Human Review`. Symphony's builder finishes, transitions the issue to `Adversarial Review`, anvil polls, runs a cross-model audit on the diff, and either moves the issue forward to `Human Review` (pass) or back to `Rework` with findings (fail). Verdicts append to the same `## Codex Workpad` comment Symphony's worker is already using, so the ticket reads as one unbroken thread instead of fragmenting across separate comments.
 
 ## How it relates to Symphony
 
@@ -78,9 +78,9 @@ loop {
         output = spawn_subprocess(persona.agent_command, prompt) // claude -p / codex exec
         review = parse(workspace / "REVIEW.md")
         match review.status {
-            Pass => transition(issue, "Human Review");   add_comment(notes)
-            Fail => transition(issue, "Rework");         add_comment(findings)
-            None => leave_state_alone();                 add_comment("operator: REVIEW.md missing")
+            Pass => transition(issue, "Human Review");   append_workpad("Adversarial Review", "PASS", notes)
+            Fail => transition(issue, "Rework");         append_workpad("Adversarial Review", "FAIL", findings)
+            None => leave_state_alone();                 append_workpad("Adversarial Review", "BLOCKED", "REVIEW.md missing")
         }
     }
     sleep(poll_interval_seconds)

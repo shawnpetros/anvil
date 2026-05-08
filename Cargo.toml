@@ -7,6 +7,7 @@ description = "Adversarial pre-PR reviewer that bolts onto OpenAI Symphony's WOR
 
 [dependencies]
 anyhow = "1.0"
+chrono = { version = "0.4", default-features = false, features = ["clock"] }
 clap = { version = "4", features = ["derive"] }
 reqwest = { version = "0.12", features = ["json", "rustls-tls"], default-features = false }
 serde = { version = "1.0", features = ["derive"] }
